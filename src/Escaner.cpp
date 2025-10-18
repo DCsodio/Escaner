@@ -32,28 +32,39 @@ int main(void)
 	UART0_Init(115200);
 	i2c_init();
 
-	laserHl laser;
-	laser.configurarLaser(2, 50, 100);
-	laser.iniciarLaser();
+	//laserHl laser;
+	//laser.configurarLaser(2, 50, 100);
+	//laser.iniciarLaser();
 
-	if (!mag.begin()) {
-	        while (1);
-	 }
+	//if (!mag.begin()) {
+	//        while (1);
+	// }
 
-	 mag.setMagGain(HMC5883_MAGGAIN_8_1);
+	// mag.setMagGain(HMC5883_MAGGAIN_8_1);
 
 		//UART0_SendBlocking((uint8_t*)&pers,  sizeof(Persona));
+	pkt.header[0]='{';
+			pkt.header[1]='{';
+			pkt.analizando=true;
+	    	//pkt.distanciaMm=laser.getDistanciaMm();
+	    	//pkt.grados=mag.getHeading();
+	    	pkt.distanciaMm=200;
+	    	pkt.grados=250;
+			pkt.checksum=calcularChecksum(&pkt);
+	    	for (volatile int i = 0; i < 70000; i++);
+	    	UART0_SendBlocking((uint8_t*)&pkt,  sizeof(Paquete));
 	while (1){
-
+/*
 		pkt.header[0]='{';
 		pkt.header[0]='{';
 		pkt.analizando=true;
-    	laser.leerDistanciaMm();
-    	pkt.distanciaMm=laser.getDistanciaMm();
-    	pkt.grados=mag.getHeading();
-    	pkt.checksum=calcularChecksum(&pkt);
+    	//pkt.distanciaMm=laser.getDistanciaMm();
+    	//pkt.grados=mag.getHeading();
+    	pkt.distanciaMm=200;
+    	pkt.grados=250;
+		pkt.checksum=calcularChecksum(&pkt);
     	for (volatile int i = 0; i < 70000; i++);
-    	UART0_SendBlocking((uint8_t*)&pkt,  sizeof(Paquete));
+    	UART0_SendBlocking((uint8_t*)&pkt,  sizeof(Paquete));*/
     }
 }
 
