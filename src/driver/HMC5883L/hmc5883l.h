@@ -73,6 +73,7 @@ typedef struct {
 
 //! Driver para el magnetómetro HMC5883L adaptado para LPC845
 class HMC5883L_LPC845 {
+
 public:
   /*!
    * @brief Constructor
