@@ -101,6 +101,8 @@ void analizar(void){
 		timerEjecutado=false;
 	}
 }
+
+
 void posicionInicial(void){
 	if(cantidadPasos>0){
 		if(sentidoHorario==true){

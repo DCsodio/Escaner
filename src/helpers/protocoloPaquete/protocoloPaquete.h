@@ -13,11 +13,12 @@
 #pragma pack(push, 1)
 typedef struct {
 	uint8_t header[2];
-	bool analizando=true;
-	uint16_t distanciaMm=0;
-	float grados=0;
+	bool analizando;
+	uint16_t distanciaMm;
+	float grados;
+	uint32_t posX;
+	uint32_t posy;
 	uint32_t checksum;
-
 } Paquete;
 #pragma pack(pop)
 
