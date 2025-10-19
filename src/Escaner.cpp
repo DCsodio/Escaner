@@ -62,6 +62,8 @@ int main(void)
 
 	pkt.header[0]='{';
 	pkt.header[1]='{';
+	pkt.posX=vehiculo.getPosX();
+	pkt.posY=vehiculo.getPosY();
 
 	while (1){
 		if(timerEjecutado==false && analisisTerminado==false && cantidadAnalisis<2){
