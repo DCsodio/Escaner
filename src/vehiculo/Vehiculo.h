@@ -23,8 +23,13 @@ private:
 
    public:
 
-       Vehiculo(   uint32_t _diametroRuedaCm, uint32_t _posX, uint32_t _posY,
-                   uint32_t _largo,uint32_t _ancho,uint32_t _altura);
+	   Vehiculo(uint32_t _diametroRuedaCm, uint32_t _posX, uint32_t _posY,
+				  uint32_t _largo,uint32_t _ancho,uint32_t _altura,
+				   uint32_t portA1, uint32_t pinA1,
+					uint32_t portA2, uint32_t pinA2,
+					uint32_t portB1, uint32_t pinB1,
+					uint32_t portB2, uint32_t pinB2,
+					uint32_t _anchoPulso=0, uint32_t _periodo=100);
 
        //esto no cambia no necesita setters
        uint32_t getLargoCm(void);
@@ -38,10 +43,11 @@ private:
        void SetPosX(uint32_t _posX);
        void SetDiametroRuedaCm(uint32_t _nuevoDiametro);
 
-       void adelante(uint32_t distanciaCm);
-       void atras(uint32_t distanciaCm);
-       void izquierda(uint32_t angulo);
-       void derecha(uint32_t angulo);
+       void adelante();
+       void atras();
+       void izquierda();
+       void derecha();
+       void detener();
 
 
 };

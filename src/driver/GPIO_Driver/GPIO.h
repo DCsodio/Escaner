@@ -13,6 +13,8 @@
 
 #define HIGH 1
 #define LOW 0
+#define SALIDA 1
+#define ENTRADA 0
 
 class Gpio {
 

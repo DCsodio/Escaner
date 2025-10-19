@@ -8,23 +8,49 @@
 
 #include "ControlVehiculo.h"
 
-ControlVehiculo::ControlVehiculo() {
-	// TODO Auto-generated constructor stub
+ControlVehiculo::ControlVehiculo(uint32_t portA1, uint32_t pinA1,
+		uint32_t portA2, uint32_t pinA2,
+		uint32_t portB1, uint32_t pinB1,
+		uint32_t portB2, uint32_t pinB2,
+		uint32_t _anchoPulso, uint32_t _periodo)
+	:motorA1(portA1,pinA1,0,100),
+	 motorA2(portA2,pinA2,0,100),
+	 motorB1(portB1,pinB1,0,100),
+	 motorB2(portB2,pinB2,0,100)
+
+{
 
 }
 
-void ControlVehiculo::adelante(uint32_t distanciaCm){
-
+void ControlVehiculo::adelante(){
+	motorA1.Set(30);
+	motorA2.Set(0);
+	motorB1.Set(30);
+	motorB2.Set(0);
 }
-void ControlVehiculo::atras(uint32_t distanciaCm){
-
+void ControlVehiculo::atras(){
+	motorA1.Set(0);
+	motorA2.Set(30);
+	motorB1.Set(0);
+	motorB2.Set(30);
 }
-void ControlVehiculo::izquierda(uint32_t angulo){
-
+void ControlVehiculo::izquierda(){
+	motorA1.Set(30);
+	motorA2.Set(0);
+	motorB1.Set(0);
+	motorB2.Set(30);
 }
-void ControlVehiculo::derecha(uint32_t angulo){
-
+void ControlVehiculo::derecha(){
+	motorA1.Set(0);
+	motorA2.Set(30);
+	motorB1.Set(30);
+	motorB2.Set(0);
 }
-
+void ControlVehiculo::detener(){
+	motorA1.Set(0);
+	motorA2.Set(0);
+	motorB1.Set(0);
+	motorB2.Set(0);
+}
 
 

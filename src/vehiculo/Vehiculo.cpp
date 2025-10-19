@@ -7,7 +7,18 @@
 
 #include "Vehiculo.h"
 
-Vehiculo::Vehiculo(uint32_t _diametroRuedaCm, uint32_t _posX, uint32_t _posY,uint32_t _largo,uint32_t _ancho,uint32_t _altura){
+Vehiculo::Vehiculo(uint32_t _diametroRuedaCm, uint32_t _posX, uint32_t _posY,
+		  	  	  uint32_t _largo,uint32_t _ancho,uint32_t _altura,
+				  uint32_t portA1, uint32_t pinA1,
+				  uint32_t portA2, uint32_t pinA2,
+				  uint32_t portB1, uint32_t pinB1,
+				  uint32_t portB2, uint32_t pinB2,
+				  uint32_t _anchoPulso, uint32_t _periodo)
+:control(portA1,pinA1,
+		portA2,pinA2,
+		portB1,pinB1,
+		portB2,pinB2)
+{
     diametroRuedaCm=_diametroRuedaCm;
     largoCm=_largo;
     anchoCm=_ancho;
@@ -48,18 +59,22 @@ void Vehiculo::SetDiametroRuedaCm(uint32_t _nuevoDiametro){
 }
 
 
-void Vehiculo::adelante(uint32_t distanciaCm){
-	control.adelante(distanciaCm);
-	posX=posX+distanciaCm;
+void Vehiculo::adelante(){
+	control.adelante();
+	//posX=posX+distanciaCm;
 }
-void Vehiculo::atras(uint32_t distanciaCm){
-	control.atras(distanciaCm);
-	posX=posX-distanciaCm;
+void Vehiculo::atras(){
+	control.atras();
+	//posX=posX-distanciaCm;
 }
-void Vehiculo::izquierda(uint32_t angulo){
-	control.izquierda(angulo);
+void Vehiculo::izquierda(){
+	control.izquierda();
 }
-void Vehiculo::derecha(uint32_t angulo){
-	control.derecha(angulo);
+void Vehiculo::derecha(){
+	control.derecha();
+
+}
+void Vehiculo::detener(){
+	control.detener();
 
 }
