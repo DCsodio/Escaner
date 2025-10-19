@@ -3,3 +3,9 @@
 #define PINMOTA2	0,1
 #define PINMOTB1	0,2
 #define PINMOTB2	0,3
+
+#define PINSTPREN	0,15
+#define PINSTPRDIR	0,14
+#define PINSTPRPASO	0,13
+
+#define PINSENSOROPTICO	0,17

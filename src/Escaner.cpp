@@ -9,7 +9,8 @@
 #include <string.h>
 #include "protocoloPaquete.h"
 #include "Vehiculo.h"
-
+#include "motorstepper.h"
+#include "gpioInterrupt.h"
 
 Paquete pkt;
 int main(void)
@@ -26,8 +27,16 @@ int main(void)
 			PINMOTB1,
 			PINMOTB2);
 
+	motorstepper motor(PINSTPRDIR,
+					PINSTPRPASO,
+					PINSTPREN);
+
+
 
 	laserHl laser;
+
+	GpioInterrupt sensorOptico(PINSENSOROPTICO,0);
+
 	laser.configurarLaser(2, 50, 100);
 	laser.iniciarLaser();
 
@@ -39,7 +48,7 @@ int main(void)
 
 	while (1){
 
-		pkt.analizando=true;
+			pkt.analizando=true;
 			pkt.distanciaMm=laser.getDistanciaMm();
 			pkt.grados=brujula.getGrados();
 			pkt.checksum=calcularChecksum(&pkt);

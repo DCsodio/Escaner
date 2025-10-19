@@ -14,8 +14,17 @@ motorstepper::motorstepper(	uint32_t portDir,uint32_t pinDir,
 						 paso(portPaso, pinPaso,SALIDA,0),
 						 enable(portEnable,pinEnable,SALIDA,1)
 {
-	// TODO Auto-generated constructor stub
-
 }
 
+void motorstepper::setDireccion(bool _direccion){
+	direccion.Set(_direccion);
+}
+void motorstepper::setEnable(bool _enable){
+	enable.Set(_enable);
+}
+void motorstepper::moverPaso(){
+	paso.Set(1);
+	for(uint16_t i=0; i<100; i++);
+	paso.Set(0);
+}
 
