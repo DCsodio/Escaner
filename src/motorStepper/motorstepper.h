@@ -9,6 +9,9 @@
 #define MOTORSTEPPER_MOTORSTEPPER_H_
 #include "Gpio.h"
 
+#define CANTPASOS180 180
+#define CANTPASOS360 360
+
 class motorstepper {
 private:
 Gpio direccion;

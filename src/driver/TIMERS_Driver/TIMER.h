@@ -14,7 +14,6 @@ class TIMER : public CALLBACK{
 private:
 	uint32_t time;
 	uint32_t timeReload;
-	uint32_t endFlag;
 
 	void (*func)(void);
 

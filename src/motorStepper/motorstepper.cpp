@@ -12,7 +12,7 @@ motorstepper::motorstepper(	uint32_t portDir,uint32_t pinDir,
 							uint32_t portEnable, uint32_t pinEnable)
 						:direccion(portDir,pinDir,SALIDA,0),
 						 paso(portPaso, pinPaso,SALIDA,0),
-						 enable(portEnable,pinEnable,SALIDA,1)
+						 enable(portEnable,pinEnable,SALIDA,0)
 {
 }
 

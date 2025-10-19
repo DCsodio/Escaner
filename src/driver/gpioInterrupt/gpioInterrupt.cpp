@@ -6,6 +6,7 @@
  */
 
 #include "GpioInterrupt.h"
+GpioInterrupt* GpioInterrupt::instancia = nullptr;
 
 GpioInterrupt::GpioInterrupt(uint32_t port, uint32_t pin, uint32_t pint)
     : Gpio(port, pin, 0, 0)   // entrada
@@ -26,19 +27,23 @@ GpioInterrupt::GpioInterrupt(uint32_t port, uint32_t pin, uint32_t pint)
 
     // Habilitar IRQ en NVIC (IRQ base 24 para PIN_INT0)
     NVIC->ISER[0] |= (1 << (24 + pint_num));
+
+    instancia=this;
 }
 
 void GpioInterrupt::clearFlag() {
     // limpiar flag de interrupción (rising)
     PINT->RISE = (1 << pint_num);
 }
+void GpioInterrupt::incrementar(void){
+	contador++;
+}
+void GpioInterrupt::setContador(uint32_t _contador){
+	contador=_contador;
+}
 extern "C" void PININT0_IRQHandler(void) {
-    // Tu código de interrupción aquí
-    //gpioInterruptFlag = true;
-
-    // Aquí puedes agregar lo que quieras que haga la interrupción
-    // Por ejemplo: toggle un LED, incrementar un contador, etc.
-
-    // Limpiar flag de interrupción
+	if (GpioInterrupt::instancia != nullptr) {
+		GpioInterrupt::instancia->incrementar();
+	}
     PINT->RISE = (1 << 0);
 }
