@@ -37,13 +37,14 @@ void analizar(void);
 
 //FUNCION POSICIONINICIAL
 void posicionInicial(void);
-
+volatile uint32_t cantidadPasos=0;
 //TIMERS
 volatile bool timerEjecutado=false;
 TIMER ctrlVelAnalizar(0,0,analizar);
 TIMER ctrlVelPosInit(0,0,posicionInicial);
 
-volatile uint32_t cantidadPasos=0;
+//CONTROL DE VECES ANALIZADAS
+uint8_t cantidadAnalisis=0;
 
 int main(void)
 {
@@ -63,13 +64,17 @@ int main(void)
 	pkt.header[1]='{';
 
 	while (1){
-		if(timerEjecutado==false && analisisTerminado==false){
+		if(timerEjecutado==false && analisisTerminado==false && cantidadAnalisis<2){
 			ctrlVelAnalizar.Start(500, 500, analizar);
 			timerEjecutado=true;
-		}
-		if(timerEjecutado==false && analisisTerminado==true){
+		}else if(timerEjecutado==false && analisisTerminado==true){
 			ctrlVelPosInit.Start(500, 500, posicionInicial);
+			cantidadAnalisis++;
 			timerEjecutado=true;
+		}
+
+		if(cantidadAnalisis==2){
+			//aca empieza a aparece la comunicacion con QT
 		}
 
 
@@ -87,9 +92,9 @@ void analizar(void){
 		//ETAPA MOTOR
 		motor.setDireccion(sentidoHorario);
 		motor.setEnable(true);
+		for(uint8_t i=0; i<20; i++);
 		motor.moverPaso();
 		motor.setEnable(false);
-		//for(uint8_t i=0; i<100; i++);
 		cantidadPasos++;
 	}else{
 		analisisTerminado=true;
@@ -97,17 +102,19 @@ void analizar(void){
 	}
 }
 void posicionInicial(void){
-	if(sentidoHorario==true && cantidadPasos>0){
-		motor.setDireccion(!sentidoHorario);
-		motor.setEnable(true);
-		motor.moverPaso();
-		cantidadPasos--;
-	}else if (sentidoHorario==false && cantidadPasos>0){
-		motor.setDireccion(!sentidoHorario);
-		motor.setEnable(true);
-		motor.moverPaso();
-		cantidadPasos--;
-	}else if(cantidadPasos<=0){
+	if(cantidadPasos>0){
+		if(sentidoHorario==true){
+			motor.setDireccion(!sentidoHorario);
+			motor.setEnable(true);
+			motor.moverPaso();
+			cantidadPasos--;
+		}else if (sentidoHorario==false){
+			motor.setDireccion(!sentidoHorario);
+			motor.setEnable(true);
+			motor.moverPaso();
+			cantidadPasos--;
+		}
+	}else{
 		ctrlVelPosInit.Stop();
 		motor.setEnable(false);
 		sentidoHorario=!sentidoHorario;
