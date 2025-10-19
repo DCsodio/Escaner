@@ -34,19 +34,17 @@ int main(void)
 	brujulaHl brujula;
 	brujula.inicializar(HMC5883_MAGGAIN_8_1);
 
-
-
 	pkt.header[0]='{';
 	pkt.header[1]='{';
-	pkt.analizando=true;
-	pkt.distanciaMm=laser.getDistanciaMm();
-	pkt.grados=brujula.getGrados();
-	pkt.checksum=calcularChecksum(&pkt);
-	for (volatile int i = 0; i < 70000; i++);
-	UART0_SendBlocking((uint8_t*)&pkt,  sizeof(Paquete));
+
 	while (1){
 
-
+		pkt.analizando=true;
+			pkt.distanciaMm=laser.getDistanciaMm();
+			pkt.grados=brujula.getGrados();
+			pkt.checksum=calcularChecksum(&pkt);
+			for (volatile int i = 0; i < 70000; i++);
+			UART0_SendBlocking((uint8_t*)&pkt,  sizeof(Paquete));
 
 
 
