@@ -10,7 +10,8 @@
 #include "protocoloPaquete.h"
 #include "Vehiculo.h"
 #include "motorstepper.h"
-#include "gpioInterrupt.h"
+#include "DRIVER_ADC.h"
+
 
 Paquete pkt;
 
@@ -25,8 +26,6 @@ motorstepper motor(PINSTPRDIR,
 				PINSTPREN);
 
 laserHl laser;
-
-GpioInterrupt sensorOptico(PINSENSOROPTICO,0);
 
 brujulaHl brujula;
 
@@ -43,20 +42,28 @@ volatile bool timerEjecutado=false;
 TIMER ctrlVelAnalizar(0,0,analizar);
 TIMER ctrlVelPosInit(0,0,posicionInicial);
 
-//CONTROL DE VECES ANALIZADAS
+//CONTROL DE VECES ANALIZADAS DEL SECTO
 uint8_t cantidadAnalisis=0;
+
+//ADC
+//uint32_t	ADC_Cuentas;
+//uint32_t	ADC_Medicion;
+
+void Print(void);
+TIMER Timer1(0,0,nullptr);
+char valor[20];
 
 int main(void)
 {
 
 	Inicializar_PLL();
-	UART0_Init(115200);
-	i2c_init();
 	SYSTICK systick(1000);
+	UART0_Init(115200);
 
+	i2c_init();
 
-	laser.configurarLaser(2, 50, 100);
 	laser.iniciarLaser();
+	laser.configurarLaser(2, 50, 100);
 
 	brujula.inicializar(HMC5883_MAGGAIN_8_1);
 
@@ -65,7 +72,12 @@ int main(void)
 	pkt.posX=vehiculo.getPosX();
 	pkt.posY=vehiculo.getPosY();
 
+	ADC_Inicializar();
+
 	while (1){
+
+		for(int i=0; i<2000; i++);
+
 		if(timerEjecutado==false && analisisTerminado==false && cantidadAnalisis<2){
 			ctrlVelAnalizar.Start(500, 500, analizar);
 			timerEjecutado=true;
@@ -78,7 +90,6 @@ int main(void)
 		if(cantidadAnalisis==2){
 			//aca empieza a aparece la comunicacion con QT
 		}
-
 
     }
 }
@@ -126,3 +137,10 @@ void posicionInicial(void){
 		timerEjecutado=false;
 	}
 }
+
+
+/*
+ * conversor valores:
+ * val<3600 abierto
+ * val>4000 cerrado
+ */

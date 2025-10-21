@@ -11,6 +11,7 @@
  * verifica el estado del sensor hasta que se logre conecetar
  */
 laserHl::laserHl() {
+	/*
 	do {
 		status = VL53L1X_BootState(VL53L1X_I2C_ADDR, &sensorState);
 	}while (!sensorState);
@@ -19,13 +20,27 @@ laserHl::laserHl() {
 	status = VL53L1X_SensorInit(VL53L1X_I2C_ADDR);
 	if (status != 0) {
 		while (1); // Error en init, quedarse bloqueado
-	}
+	}*/
 }
 
 /*
  * inicia el laser
  */
+
+
+
+
 void laserHl::iniciarLaser(void){
+	do {
+			status = VL53L1X_BootState(VL53L1X_I2C_ADDR, &sensorState);
+		}while (!sensorState);
+
+		// Inicializar sensor
+		status = VL53L1X_SensorInit(VL53L1X_I2C_ADDR);
+		if (status != 0) {
+			while (1); // Error en init, quedarse bloqueado
+		}
+
 	 VL53L1X_StartRanging(VL53L1X_I2C_ADDR);
 }
 
