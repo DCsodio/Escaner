@@ -19,6 +19,7 @@ private:
 
 public:
 	TIMER(uint32_t timeStart, uint32_t timeReload, void (*func)(void));
+	uint32_t getTime(void);
 	void Start(uint32_t timeStart, uint32_t timeReload, void (*func)(void));
 	void Discount(void);
 	void Stop(void);

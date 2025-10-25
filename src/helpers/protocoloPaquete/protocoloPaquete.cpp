@@ -7,7 +7,7 @@
 
 #include "protocoloPaquete.h"
 
-uint32_t calcularChecksum(Paquete* pkt) {
+uint32_t calcularChecksum(volatile Paquete* pkt) {
     uint32_t sum = 0;
 
     // Sumar todos los bytes excepto los del campo checksum

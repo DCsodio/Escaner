@@ -34,3 +34,7 @@ void TIMER::Discount(void){
 void TIMER::Callback(void){
 	Discount();
 }
+
+uint32_t TIMER::getTime(void){
+	return time;
+}

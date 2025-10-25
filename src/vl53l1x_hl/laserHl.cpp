@@ -41,7 +41,7 @@ void laserHl::iniciarLaser(void){
 			while (1); // Error en init, quedarse bloqueado
 		}
 
-	 VL53L1X_StartRanging(VL53L1X_I2C_ADDR);
+	// VL53L1X_StartRanging(VL53L1X_I2C_ADDR);
 }
 
 /*
@@ -56,6 +56,8 @@ void laserHl::configurarLaser(uint32_t rango, uint32_t budget, uint32_t periodo)
 	VL53L1X_SetDistanceMode(VL53L1X_I2C_ADDR, rango);        // 2 = largo alcance
 	VL53L1X_SetTimingBudgetInMs(VL53L1X_I2C_ADDR, budget);   // 50ms budget
 	VL53L1X_SetInterMeasurementInMs(VL53L1X_I2C_ADDR,periodo);
+
+	VL53L1X_StartRanging(VL53L1X_I2C_ADDR);
 }
 
 /*
@@ -75,5 +77,6 @@ void laserHl::leerDistanciaMm(void){
  * Devuelve distancia en milimetros
  */
 uint16_t laserHl::getDistanciaMm(void){
+	leerDistanciaMm();
 	return distanciaMm;
 }

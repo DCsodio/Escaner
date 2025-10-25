@@ -13,7 +13,7 @@
 #pragma pack(push, 1)
 typedef struct {
 	uint8_t header[2];
-	bool analizando;
+	uint8_t analizando;
 	uint16_t distanciaMm;
 	float grados;
 	uint32_t posX;
@@ -22,6 +22,6 @@ typedef struct {
 } Paquete;
 #pragma pack(pop)
 
-uint32_t calcularChecksum(Paquete* pkt);
+uint32_t calcularChecksum(volatile Paquete* pkt);
 
 #endif /* HELPERS_PROTOCOLOPAQUETE_PROTOCOLOPAQUETE_H_ */

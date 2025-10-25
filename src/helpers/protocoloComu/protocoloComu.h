@@ -18,21 +18,22 @@
 
 class protocoloComu{
 private:
-int8_t datos[MAX_DATOS];
+uint8_t datos[MAX_DATOS];
 uint32_t indice=0;
-int8_t caracterFinal;
+uint8_t caracterFinal;
+uint8_t caracterInicial;
+bool deteccionDatos=false;
 bool nuevosDatos=false;
 
 public:
 
-	protocoloComu(uint8_t _caracterFinal);
+	protocoloComu( uint8_t _caracterInicial, uint8_t _caracterFinal);
 	void cambiarCaracterFinal(uint8_t nuevoCaracter);
+	void cambiarCaracterInicial(uint8_t nuevoCaracter);
 	void enviar(const char* _datos, uint32_t tamanio=0);
 	bool leerDatos(void);
-	int8_t* getDatos(void);
+	uint8_t* getDatos(void);
 	bool nuevoMensaje(void);
-
-
 };
 
 #endif /* DRIVER_PROTOCOLOCOMU_PROTOCOLOCOMU_H_ */
