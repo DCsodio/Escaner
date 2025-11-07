@@ -34,7 +34,7 @@ void laserHl::iniciarLaser(void){
 	do {
 			status = VL53L1X_BootState(VL53L1X_I2C_ADDR, &sensorState);
 		}while (!sensorState);
-
+	for(int i=0; i<50; i++);
 		// Inicializar sensor
 		status = VL53L1X_SensorInit(VL53L1X_I2C_ADDR);
 		if (status != 0) {
@@ -67,7 +67,6 @@ void laserHl::leerDistanciaMm(void){
 	dataReady=0;
 	while (dataReady == 0) {
 		VL53L1X_CheckForDataReady(VL53L1X_I2C_ADDR, &dataReady);
-		//aca deberiamos lanzar un timer que si se queda clavado aca que se reinicie
 	}
 	VL53L1X_GetDistance(VL53L1X_I2C_ADDR, (uint16_t *)&distanciaMm);
 	        // Limpiar la interrupción del sensor

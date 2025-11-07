@@ -13,10 +13,9 @@ brujulaHl::brujulaHl() {
 }
 
 void brujulaHl::inicializar(hmc5883MagGain ganancia){
-	while (!mag.begin()){
-		//aca podemos enviar algo que se esta inicializando la brujula
+	while (!mag.begin(ganancia)){
+		for(int i=0; i<100; i++);//aca podemos enviar algo que se esta inicializando la brujula
 	}
-	mag.setMagGain(ganancia);
 
 }
 

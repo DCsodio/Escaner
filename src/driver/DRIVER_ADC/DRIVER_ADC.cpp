@@ -8,7 +8,7 @@
 #include "DRIVER_ADC.h"
 
 uint32_t	ADC_Cuentas;
-uint32_t	ADC_Medicion;
+bool ADC_on=false;;
 
 TIMER 	TimerADC(0,0,nullptr);
 
@@ -59,8 +59,8 @@ void ADC_Inicializar(void)
 
 	NVIC->ISER[0] |= (1 << 16); 					/* enable interrupt ISE_ADC_SEQA*/
 
-	TimerADC.Start(100, 100, ADC_Start);		// Configuro el timerADC para llamar a la funcion ADC_Disparo cada 100ms
-
+	TimerADC.Start(1,1, ADC_Start);		// Configuro el timerADC para llamar a la funcion ADC_Disparo cada 100ms
+	ADC_on=true;
 }
 
 void ADC_Start(void){
@@ -81,46 +81,21 @@ void ADC_Disparo(uint32_t Canal)
 
 void ADC_SEQA_IRQHandler(void)
 {
-	/*
-	// Leo el registro de lectura de ADC
-	uint32_t	Temporal = ADC0->SEQ_GDAT[0];
-
-	// Parseo el canal del ADC leido
-	uint32_t 	Canal = (Temporal >> 26) & 0x0f;
-	uint32_t	Valor_Temporal;
-
-	// Verifico si es correcto
-	if(Canal >= CANTIDAD_CANALES_ADC)
-		return;
-
-	// Parseo el valor leido por el ADC
-	Valor_Temporal = (Temporal >> 4) & 0xfff;
-
-	ADC_Cuentas[Canal] = Valor_Temporal;
-
-	//Valor_Temporal = (Valor_Temporal * 3300) / 4096;
-	//ADC_Medicion[Canal] = Valor_Temporal;ESTOS DOS ME DAN EL VALOR EN mV
-	ADC_Medicion[Canal] =ADC_Cuentas[Canal];
-
-	//ADC0->FLAGS = (1 << 0);
-
-	//printf("ADC Canal %d= %d\r\n", Canal, Temporal);
-
-	*/
 	uint32_t Temporal = ADC0->SEQ_GDAT[0];
 
 	//uint32_t Canal = (Temporal >> 26) & 0x0F;
 	uint32_t Valor_Temporal = (Temporal >> 4) & 0xFFF;
 
 	ADC_Cuentas = Valor_Temporal;
-	ADC_Medicion = Valor_Temporal;   // o convertir a mV si querés
 
 	ADC0->FLAGS = (1 << 9);  // *** IMPORTANTE: limpiar FLAG ***
 }
 
 void ADC_Stop(void){
 	TimerADC.Stop();
+	ADC_on=false;
 }
 void ADC_Reset(void){
-	TimerADC.Start(100, 100, ADC_Start);
+	ADC_on=true;
+	TimerADC.Start(1, 1, ADC_Start);
 }

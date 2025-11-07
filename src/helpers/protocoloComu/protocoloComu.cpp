@@ -10,6 +10,8 @@
 protocoloComu::protocoloComu(uint8_t _caracterInicial, uint8_t _caracterFinal){
 	caracterFinal=_caracterFinal;
 	caracterInicial=_caracterInicial;
+	deteccionDatos=false;
+	nuevosDatos=false;
 }
 void protocoloComu::cambiarCaracterFinal(uint8_t nuevoCaracter){
 	caracterFinal=nuevoCaracter;
@@ -22,13 +24,7 @@ void protocoloComu::enviar(const char* _datos, uint32_t tamanio){
 }
 bool protocoloComu::leerDatos(void){
 	uint8_t dato;
-	while(UART0_RxAvailable() && nuevosDatos==false){
-
-		if(indice>=MAX_DATOS){
-			deteccionDatos=false;
-			indice=0;
-			return ERROR_DESBORDE;
-		}
+	if(UART0_RxAvailable() && nuevosDatos==false){
 
 		dato=UART0_PopRx();
 
@@ -41,6 +37,11 @@ bool protocoloComu::leerDatos(void){
 				deteccionDatos=false;
 				nuevosDatos=true;
 				return ESTABLE;
+			}
+			if(indice>=MAX_DATOS){
+				deteccionDatos=false;
+				indice=0;
+				return ERROR_DESBORDE;
 			}
 			datos[indice]=dato;
 			indice++;

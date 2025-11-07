@@ -14,8 +14,9 @@
 
 #define 	CANTIDAD_CANALES_ADC	2
 
+
 extern uint32_t	ADC_Cuentas;
-extern uint32_t	ADC_Medicion;
+extern bool ADC_on;
 
 void ADC_Inicializar(void);
 void ADC_Disparo(uint32_t Canal);

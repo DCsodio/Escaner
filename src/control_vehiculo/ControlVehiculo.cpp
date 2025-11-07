@@ -19,31 +19,34 @@ ControlVehiculo::ControlVehiculo(uint32_t portA1, uint32_t pinA1,
 	 motorB2(portB2,pinB2,0,100)
 
 {
-
+	motorA1.Set(0);
+	motorA2.Set(0);
+	motorB1.Set(0);
+	motorB2.Set(0);
 }
 
 void ControlVehiculo::adelante(){
-	motorA1.Set(30);
-	motorA2.Set(0);
-	motorB1.Set(30);
+	motorA1.Set(0);
+	motorA2.Set(velPct);
+	motorB1.Set(velPct);
 	motorB2.Set(0);
 }
 void ControlVehiculo::atras(){
-	motorA1.Set(0);
-	motorA2.Set(30);
-	motorB1.Set(0);
-	motorB2.Set(30);
-}
-void ControlVehiculo::izquierda(){
-	motorA1.Set(30);
+	motorA1.Set(velPct);
 	motorA2.Set(0);
 	motorB1.Set(0);
-	motorB2.Set(30);
+	motorB2.Set(velPct);
+}
+void ControlVehiculo::izquierda(){
+	motorA1.Set(0);
+	motorA2.Set(velPct);
+	motorB1.Set(0);
+	motorB2.Set(velPct);
 }
 void ControlVehiculo::derecha(){
-	motorA1.Set(0);
-	motorA2.Set(30);
-	motorB1.Set(30);
+	motorA1.Set(velPct);
+	motorA2.Set(0);
+	motorB1.Set(velPct);
 	motorB2.Set(0);
 }
 void ControlVehiculo::detener(){
@@ -53,4 +56,7 @@ void ControlVehiculo::detener(){
 	motorB2.Set(0);
 }
 
+void ControlVehiculo::setVelPct(uint8_t _velPct){
+	velPct= _velPct;
+}
 

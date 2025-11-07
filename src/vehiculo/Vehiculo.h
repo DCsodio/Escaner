@@ -48,6 +48,7 @@ private:
        void izquierda();
        void derecha();
        void detener();
+       void cambiarVelocidad(uint8_t);
 
 
 };

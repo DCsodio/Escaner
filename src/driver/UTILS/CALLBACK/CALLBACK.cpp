@@ -8,7 +8,7 @@
 #include "Defines.h"
 
 CALLBACK* vCallBack[MAX_CALLBACK];
-static uint8_t cant_call=0;
+static uint32_t cant_call=0;
 
 void CALLBACK::Callback( void )
 {

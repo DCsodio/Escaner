@@ -9,8 +9,8 @@
 #define MOTORSTEPPER_MOTORSTEPPER_H_
 #include "Gpio.h"
 
-#define CANTPASOS180 180
-#define CANTPASOS360 360
+#define CANTPASOS180 100
+#define CANTPASOS360 200
 
 class motorstepper {
 private:

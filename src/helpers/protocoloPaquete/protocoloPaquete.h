@@ -16,8 +16,9 @@ typedef struct {
 	uint8_t analizando;
 	uint16_t distanciaMm;
 	float grados;
-	uint32_t posX;
-	uint32_t posY;
+	uint16_t cantidadPasos;
+	uint32_t pulsos;
+	bool direccionAdelante;
 	uint32_t checksum;
 } Paquete;
 #pragma pack(pop)

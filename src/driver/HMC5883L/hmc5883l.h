@@ -84,7 +84,7 @@ public:
    * @brief Inicializa el sensor
    * @return true si la inicialización fue exitosa, false en caso contrario
    */
-  bool begin(void);
+  bool begin(hmc5883MagGain ganancia);
 
   /*!
    * @brief Configura la ganancia del magnetómetro

@@ -19,12 +19,15 @@ Vehiculo::Vehiculo(uint32_t _diametroRuedaCm, uint32_t _posX, uint32_t _posY,
 		portB1,pinB1,
 		portB2,pinB2)
 {
+	for(int i=0; i<50; i++);
     diametroRuedaCm=_diametroRuedaCm;
     largoCm=_largo;
     anchoCm=_ancho;
     alturaCm=_altura;
     posX=_posX;
     posY=_posY;
+
+    control.setVelPct(0);
 
 }
 
@@ -60,6 +63,7 @@ void Vehiculo::SetDiametroRuedaCm(uint32_t _nuevoDiametro){
 
 
 void Vehiculo::adelante(){
+	for(int i=0; i<50; i++);
 	control.adelante();
 	//posX=posX+distanciaCm;
 }
@@ -77,4 +81,8 @@ void Vehiculo::derecha(){
 void Vehiculo::detener(){
 	control.detener();
 
+}
+
+void Vehiculo::cambiarVelocidad(uint8_t _velPct){
+	control.setVelPct(_velPct);
 }

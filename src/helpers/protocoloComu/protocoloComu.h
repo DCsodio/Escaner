@@ -11,7 +11,7 @@
 #include "Uart0.h"
 #include "tipos.h"
 
-#define MAX_DATOS 50
+#define MAX_DATOS 100
 
 #define ERROR_DESBORDE 1
 #define ESTABLE 0
@@ -22,8 +22,8 @@ uint8_t datos[MAX_DATOS];
 uint32_t indice=0;
 uint8_t caracterFinal;
 uint8_t caracterInicial;
-bool deteccionDatos=false;
-bool nuevosDatos=false;
+bool deteccionDatos;
+bool nuevosDatos;
 
 public:
 

@@ -20,11 +20,12 @@ private:
 	uint8_t sensorState = 0;
 	VL53L1X_ERROR status = 0;
 
+	void leerDistanciaMm(void);
+
 public:
 	laserHl();
 	void iniciarLaser(void);
 	void configurarLaser(uint32_t rango=2, uint32_t budget=50, uint32_t periodo=100);
-	void leerDistanciaMm(void);
 	uint16_t getDistanciaMm(void);
 
 };

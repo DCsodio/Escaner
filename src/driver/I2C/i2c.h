@@ -19,8 +19,8 @@ extern "C"
 {
 #endif
 
-#define BAUDRATE	100000
-#define FRECUENCY	(2400000UL)
+#define BAUDRATE	400000
+#define FRECUENCY	(24000000UL)
 
 typedef int32_t status_t;
 /* register offset */

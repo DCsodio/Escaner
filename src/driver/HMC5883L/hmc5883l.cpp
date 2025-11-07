@@ -107,23 +107,34 @@ bool HMC5883L_LPC845::verifyConnection(void) {
  PUBLIC FUNCTIONS
  ***************************************************************************/
 
-bool HMC5883L_LPC845::begin(void) {
-  // Inicializar I2C si no está inicializado
-  // Nota: Asumimos que i2c_init() ya fue llamado desde el código principal
-
+bool HMC5883L_LPC845::begin(hmc5883MagGain ganancia) {
   // Verificar conexión
   if (!verifyConnection()) {
     return false;
   }
 
-  // Configurar modo de medición continua
+  // --- Soft Reset Magnético ---
+  // 1. Pasar a modo Idle
+  write8(HMC5883_REGISTER_MAG_MR_REG_M, 0x02);
+  for (volatile int i = 0; i < 10000; i++); // pequeña espera (~10 ms)
+
+  // 2. Alternar ganancias extremas (recalibra ADC interno)
+  setMagGain(HMC5883_MAGGAIN_8_1); // máxima
+  for (volatile int i = 0; i < 100; i++);
+  setMagGain(HMC5883_MAGGAIN_1_3); // normal
+  for (volatile int i = 0; i < 100; i++);
+  // 3. Volver a modo continuo
   write8(HMC5883_REGISTER_MAG_MR_REG_M, 0x00);
+  for (volatile int i = 0; i < 100; i++);
+  // --- Configuración normal ---
+  // Ganancia de trabajo
+  setMagGain(ganancia);
 
-  // Establecer ganancia por defecto
-  setMagGain(HMC5883_MAGGAIN_1_3);
-
-  // Configurar registro CRA (Data Output Rate = 15Hz, Modo de medición normal)
+  // Salida 15 Hz, medición normal
   write8(HMC5883_REGISTER_MAG_CRA_REG_M, 0x10);
+
+  // Limpiar primeras lecturas
+  for (int i = 0; i < 5; i++) readRawData();
 
   return true;
 }
@@ -132,35 +143,38 @@ void HMC5883L_LPC845::setMagGain(hmc5883MagGain gain) {
   write8(HMC5883_REGISTER_MAG_CRB_REG_M, (uint8_t)gain);
   _magGain = gain;
 
-  // Actualizar factores de conversión según la ganancia
-  uint8_t gain_index = ((uint8_t)gain >> 5) - 1;
-  if (gain_index < 7) {
+  // Calcular índice de tabla (0..6)
+  int8_t gain_index = ((uint8_t)gain >> 5) - 1;
+
+  if (gain_index >= 0 && gain_index < 7) {
     _gauss_LSB_XY = gain_factors_xy[gain_index];
     _gauss_LSB_Z = gain_factors_z[gain_index];
+  } else {
+    // Valor fuera de rango → mantener último valor conocido
+    // (opcional: podrías fijar defaults seguros)
+    _gauss_LSB_XY = 1100.0F;
+    _gauss_LSB_Z = 980.0F;
   }
 }
 
 bool HMC5883L_LPC845::readData(hmc5883_data_t *data) {
-  if (data == NULL) {
-    return false;
-  }
+  if (data == NULL) return false;
 
   readRawData();
 
-  // Convertir a microTesla y aplicar calibración
-  data->x = ((_magData.x / _gauss_LSB_XY) * 100.0f - _offset_x) * _scale_x;
-  data->y = ((_magData.y / _gauss_LSB_XY) * 100.0f - _offset_y) * _scale_y;
-  data->z = ((_magData.z / _gauss_LSB_Z) * 100.0f - _offset_z) * _scale_z;
+  const float GAUSS_TO_MICROTESLA = 100.0f;
 
-  // Calcular heading
+  float x_gauss = _magData.x / _gauss_LSB_XY;
+  float y_gauss = _magData.y / _gauss_LSB_XY;
+  float z_gauss = _magData.z / _gauss_LSB_Z;
+
+  // Convertir a µT y aplicar calibración
+  data->x = (x_gauss * GAUSS_TO_MICROTESLA - _offset_x) * _scale_x;
+  data->y = (y_gauss * GAUSS_TO_MICROTESLA - _offset_y) * _scale_y;
+  data->z = (z_gauss * GAUSS_TO_MICROTESLA - _offset_z) * _scale_z;
+
   data->heading = atan2f(data->y, data->x);
-
-  // Ajustar heading negativo
-  if (data->heading < 0) {
-    data->heading += 2 * M_PI;
-  }
-
-  // Convertir a grados
+  if (data->heading < 0) data->heading += 2 * M_PI;
   data->heading_deg = data->heading * 180.0f / M_PI;
 
   return true;
