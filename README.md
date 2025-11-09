@@ -1,7 +1,7 @@
-# 🚗 Vehículo Autónomo con Mapeo 2D
+# 🚗 Vehículo con Mapeo 2D
 
 ## 📝 Descripción del Sistema
-Este proyecto implementa un **vehículo autónomo** que utiliza un sensor láser **VL53L1X** para generar mapas 2D en tiempo real. El **LPC845** procesa los datos de los sensores y los envía vía UART al **ESP32**, que actúa como puente WiFi hacia una aplicación **Qt** para la visualización del mapa y control opcional del vehículo.
+Este proyecto implementa un **vehículo** que utiliza un sensor láser **VL53L1X** para generar mapas 2D en tiempo real. El **LPC845** procesa los datos de los sensores y los envía vía UART al **ESP32**, que actúa como puente WiFi hacia una aplicación **Qt** para la visualización del mapa y control opcional del vehículo.
 
 ---
 
