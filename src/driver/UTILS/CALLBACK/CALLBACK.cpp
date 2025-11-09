@@ -1,10 +1,3 @@
-/*
- * CALLBACK.cpp
- *
- *  Created on: 23 ago. 2023
- *      Author: gusta
- */
-
 #include "Defines.h"
 
 CALLBACK* vCallBack[MAX_CALLBACK];

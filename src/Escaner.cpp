@@ -15,8 +15,9 @@
 #include "stdlib.h"
 
 #define ENABLE_TEST_MOVILIDAD true
+#define MAX_MUESTRAS 4
 
-volatile Paquete pkt;
+Paquete pkt;
 
 //Led para verificar transmision
 Gpio LED_TX(1,0,1,1);
@@ -39,39 +40,26 @@ laserHl laser;
 
 //Creacion de la brujula
 brujulaHl brujula;
-bool anguloInicial=false;
-
-//FUNCION ANALISIS SECTORIAL
-volatile bool analisisTerminado=true;
-volatile bool sentidoHorario=true;
-void analizar(void);
+volatile bool anguloInicial=false;
 
 //FUNCION POSICION INICIAL
 void posicionInicial(void);
 volatile uint32_t cantidadPasos=0;
 
+//FUNCION ANALISIS SECTORIAL
+volatile bool analisisTerminado=true;
+volatile bool sentidoHorario=true;
+volatile bool flagAnalizar=false;
+volatile uint8_t maquinaEstado=0;
+void analizar(void);
+void enAnalizar(void);
+
 //TIMER PARA VELOCIDAD LIDAR
-volatile bool timerEjecutado=false;
-TIMER ctrlVelAnalizar(0,0,analizar);
-uint16_t velocidadAnalisis=210;
-void moverMotor(bool sentido,  bool tipoPaso=1);
-uint8_t maquinaEstado=0;
-
-//TIMER PARA VELOCIDAD DE POSICION INICIAL
-TIMER ctrlVelPosInit(0,0,posicionInicial);
-
-//TIMEOUT
-#define MAX_TIMEOUT 400
-void reenviar(void);
-TIMER timeOut(0,0,nullptr);
-volatile bool timerTimeOut=false;
+TIMER ctrlVelAnalizar(0,0,enAnalizar);
+volatile uint16_t velocidadAnalisis=210;
 
 //CREACION PROTOCOLO DE COMUNICACION
 protocoloComu proto('>','<');
-
-
-char valor[20];
-bool rum=false;
 
 bool estado_actual=false;
 bool estado_anterior=false;
@@ -85,16 +73,17 @@ int main(void)
 	vehiculo.detener();
 	SYSTICK systick(1000);
 	UART0_Init(115200);
-
 	i2c_init();
 
+	//Laser
 	laser.iniciarLaser();
 	laser.configurarLaser(2, 33, 50);
 
+	//Brujuila
 	brujula.inicializar(HMC5883_MAGGAIN_4_0);
 
+	//detecta que el esp32 se haya conectado
 	bool init=false;
-
 	while(!init){
 		proto.leerDatos();
 		if(proto.nuevoMensaje()){
@@ -104,17 +93,15 @@ int main(void)
 		}
 	}
 	for (int i=0; i<10000; i++);
+
+	//habilitamos los botones && preparamos el header
 	pkt.header[0]='{';
 	pkt.header[1]='{';
+	pkt.analizando=false;
+	pkt.checksum=calcularChecksum(&pkt);
+	UART0_Send((uint8_t*)&pkt, sizeof(Paquete));
 
-	if(ENABLE_TEST_MOVILIDAD){ //test movilidad
-		pkt.analizando=0;
-		pkt.distanciaMm=0;
-		pkt.grados=0;
-		pkt.checksum=calcularChecksum(&pkt);
-		UART0_Send((uint8_t*)&pkt, sizeof(Paquete));
-	}
-
+	//configuramos el ADC
 	ADC_Inicializar();
 	ADC_Stop();
 
@@ -136,150 +123,160 @@ int main(void)
 
 		proto.leerDatos();
 		if(proto.nuevoMensaje()){
+
 			const char* datos = (const char*)proto.getDatos();
+
 			if(analisisTerminado){
-				if(strcmp(datos,"p")==0){
+
+				if(datos[0]=='p'){
 					vehiculo.detener();
+					for(int i=0; i<10000; i++){
+					}
 					ADC_Stop();
-					pkt.analizando=false;
 
 					uint32_t _valorPromedio=0;
-					for(uint8_t veces=0;veces<4; veces++){
+					for(uint8_t veces=0;veces<MAX_MUESTRAS; veces++){
 						_valorPromedio=_valorPromedio+brujula.getGrados();
 					}
-					_valorPromedio=_valorPromedio/4;
+					_valorPromedio=_valorPromedio/MAX_MUESTRAS;
 					pkt.grados=_valorPromedio;
-
 					pkt.pulsos=cantPulsos;
-					pkt.distanciaMm=laser.getDistanciaMm();
 					pkt.checksum=calcularChecksum(&pkt);
 					UART0_Send((uint8_t*)&pkt,  sizeof(Paquete));
 					cantPulsos=0;
 
-				}else if(strcmp(datos,"w")==0){
+				}else if(datos[0]=='w'){
 					ADC_Reset();
 					pkt.direccionAdelante=true;
 					vehiculo.adelante();
-				}else if(strcmp(datos,"s")==0){
-					pkt.direccionAdelante=false;
+				}else if(datos[0]=='s'){
 					ADC_Reset();
+					pkt.direccionAdelante=false;
 					vehiculo.atras();
-				}else if(strcmp(datos,"a")==0){
+				}else if(datos[0]=='a'){
 					vehiculo.izquierda();
-				}else if(strcmp(datos,"d")==0){
+				}else if(datos[0]=='d'){
 					vehiculo.derecha();
+				}else if(strcmp(datos,"mD")==0){
+					motor.moverPaso(true);
+					motor.setCantidadPasos(0);
+				}else if(strcmp(datos,"mI")==0){
+					motor.moverPaso(false);
+					motor.setCantidadPasos(0);
 				}else if(strcmp(datos,"analizar")==0){
-					analisisTerminado=false;
-					anguloInicial=false;
-					if(timerEjecutado==false){
-						ctrlVelAnalizar.Start(velocidadAnalisis, velocidadAnalisis, analizar);
-						timerEjecutado=true;
+					if(flagAnalizar==false){
+						ctrlVelAnalizar.Start(velocidadAnalisis, velocidadAnalisis, enAnalizar);
 					}
 				}
 
 			}else{
 				if(strcmp(datos,"enMov")==0){
 					ctrlVelAnalizar.Stop();
-					timerEjecutado=false;
+					/*timerEjecutado=false;
 					if(timerEjecutado==false){
 						ctrlVelPosInit.Start(100,100, posicionInicial);
 						timerEjecutado=true;
-					}
+					}*/
 					//enmov
 				}else if(strcmp(datos,"disMov")==0){
 					analisisTerminado=true;
 				}
 			}
+
+
 			if(strncmp(datos,"motor:",6)==0){
-				uint8_t *p=proto.getDatos();
-				uint8_t valor=atoi((const char*)&(p[6]));
+				uint8_t valor=atoi((const char*)(&datos[6]));
 				vehiculo.cambiarVelocidad(valor);
-			}else if(strncmp(datos,"periodo:",8)==0){
-				uint8_t *p=proto.getDatos();
-				uint16_t valor=atoi((const char*)&(p[8]));
+			}else if(strncmp(datos,"T:",8)==0){
+				uint16_t valor=atoi((const char*)(&datos[8]));
 				velocidadAnalisis=valor;
 			}/*else if(strcmp((char*)proto.getDatos(),"reset")==0){
 				//reset
 			}*/
 		}
+
+		if(flagAnalizar){
+			flagAnalizar=false;
+			analizar();
+		}
+
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * FUNCIONES IMPLEMENTADAS
+ */
+
+
 void analizar(void){
+	uint32_t promedio=0;
 	if(cantidadPasos<CANTPASOS180 && analisisTerminado==false){
 		//ETAPA TOMA DE DATOS
-			uint32_t _valorPromedio=0;
-			pkt.analizando=true;
-			for(uint8_t veces=0;veces<4; veces++){
-				_valorPromedio=_valorPromedio+laser.getDistanciaMm();
-			}
-			_valorPromedio=_valorPromedio/4;
-			pkt.distanciaMm=_valorPromedio;
+		pkt.analizando=true;
 
-			_valorPromedio=0;
-			if(!anguloInicial){
-				for(uint8_t veces=0;veces<4; veces++){
-					_valorPromedio=_valorPromedio+brujula.getGrados();
-				}
-				_valorPromedio=_valorPromedio/4;
-				pkt.grados=_valorPromedio;
-				anguloInicial=true;
-			}
-			pkt.cantidadPasos=cantidadPasos;
-			pkt.checksum=calcularChecksum(&pkt);
-			UART0_Send((uint8_t*)&pkt, sizeof(Paquete)); //hay que sacar esto
-			LED_TX.Set(state);
-			state=!state;
 
-			moverMotor(sentidoHorario);
+		for(uint8_t veces=0; veces<MAX_MUESTRAS; veces++){
+			promedio=promedio+laser.getDistanciaMm();
+		}
+		promedio=promedio/MAX_MUESTRAS;
+		pkt.distanciaMm=promedio;
+
+		promedio=0;
+		if(!anguloInicial){
+			for(uint8_t veces=0;veces<MAX_MUESTRAS; veces++){
+				promedio=promedio+brujula.getGrados();
+			}
+			promedio=promedio/MAX_MUESTRAS;
+			pkt.grados=promedio;
+			anguloInicial=true;
+		}
+
+		pkt.cantidadPasos=motor.getCantidadPasos();
+		pkt.checksum=calcularChecksum(&pkt);
+		UART0_Send((uint8_t*)&pkt, sizeof(Paquete));
+		LED_TX.Set(state);
+		state=!state;
+		motor.moverPaso(sentidoHorario);
 
 	}else if (cantidadPasos>=CANTPASOS180){
-			if(maquinaEstado==0 || maquinaEstado==2 ){
-				sentidoHorario=!sentidoHorario;
-			}
-			maquinaEstado++;
-			cantidadPasos=0;
-			if(maquinaEstado==4){
-				//enviamos que termino el analisis
-				pkt.analizando=false;
-				pkt.checksum=calcularChecksum(&pkt);
-				UART0_Send((uint8_t*)&pkt,  sizeof(Paquete));
-				LED_TX.Set(false);
-				analisisTerminado=true;
-				ctrlVelAnalizar.Stop();
-				timerEjecutado=false;
-				maquinaEstado=0;
-			}
+		if(maquinaEstado==0 || maquinaEstado==2 ){
+			sentidoHorario=!sentidoHorario;
+		}
+		maquinaEstado++;
+		motor.setCantidadPasos(0);
+		if(maquinaEstado==4){
+			//enviamos que termino el analisis
+			ctrlVelAnalizar.Stop();
+			pkt.analizando=false;
+			pkt.checksum=calcularChecksum(&pkt);
+			UART0_Send((uint8_t*)&pkt,  sizeof(Paquete));
+			LED_TX.Set(false);
+
+			analisisTerminado=true;
+			anguloInicial=false;
+			maquinaEstado=0;
+		}
 	}
 }
 
 
-void posicionInicial(void){
-	if((maquinaEstado==0 ||maquinaEstado==2) && cantidadPasos>0){
-		moverMotor(!sentidoHorario,false);
-	}else if ((maquinaEstado==1||maquinaEstado==3) && cantidadPasos<180){
-		moverMotor(sentidoHorario,true);
-	}else{
-		ctrlVelPosInit.Stop();
-		motor.setEnable(false);
-		sentidoHorario=true;
-		timerEjecutado=false;
-		maquinaEstado=0;
-	}
-}
-
-
-void moverMotor(bool sentido, bool tipoPaso){
-	motor.setDireccion(sentido);
-	motor.setEnable(true);
-	motor.moverPaso();
-	//motor.setEnable(false);
-	if(tipoPaso){
-		cantidadPasos++;
-	}else{
-		cantidadPasos--;
-	}
-
+/*
+ * FLAGS PARA ACTIVAR FUNCIONES
+ */
+void enAnalizar(void){
+	flagAnalizar=true;
 }
 
 /*

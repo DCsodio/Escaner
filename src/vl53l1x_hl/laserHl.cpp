@@ -34,14 +34,14 @@ void laserHl::iniciarLaser(void){
 	do {
 			status = VL53L1X_BootState(VL53L1X_I2C_ADDR, &sensorState);
 		}while (!sensorState);
-	for(int i=0; i<50; i++);
-		// Inicializar sensor
-		status = VL53L1X_SensorInit(VL53L1X_I2C_ADDR);
-		if (status != 0) {
-			while (1); // Error en init, quedarse bloqueado
-		}
 
-	// VL53L1X_StartRanging(VL53L1X_I2C_ADDR);
+	for(int i=0; i<500; i++){
+	}
+		// Inicializar sensor
+	status = VL53L1X_SensorInit(VL53L1X_I2C_ADDR);
+	if (status != 0) {
+		while (1); // Error en init, quedarse bloqueado
+	}
 }
 
 /*
@@ -56,7 +56,6 @@ void laserHl::configurarLaser(uint32_t rango, uint32_t budget, uint32_t periodo)
 	VL53L1X_SetDistanceMode(VL53L1X_I2C_ADDR, rango);        // 2 = largo alcance
 	VL53L1X_SetTimingBudgetInMs(VL53L1X_I2C_ADDR, budget);   // 50ms budget
 	VL53L1X_SetInterMeasurementInMs(VL53L1X_I2C_ADDR,periodo);
-
 	VL53L1X_StartRanging(VL53L1X_I2C_ADDR);
 }
 

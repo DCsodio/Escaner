@@ -1,12 +1,5 @@
-/*
- * CALLBACK.h
- *
- *  Created on: 23 ago. 2023
- *      Author: gusta
- */
+#pragma once
 
-#ifndef UTILS_CALLBACK_CALLBACK_H_
-#define UTILS_CALLBACK_CALLBACK_H_
 #define MAX_CALLBACK 50
 
 class CALLBACK {
@@ -28,4 +21,4 @@ public:
 	 */
 };
 
-#endif /* UTILS_CALLBACK_CALLBACK_H_ */
+

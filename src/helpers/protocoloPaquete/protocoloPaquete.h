@@ -10,6 +10,7 @@
 
 #include "tipos.h"
 
+//IEEE754 little-endian.
 #pragma pack(push, 1)
 typedef struct {
 	uint8_t header[2];

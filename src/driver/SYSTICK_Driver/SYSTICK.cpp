@@ -1,10 +1,3 @@
-/*
- * SYSTICK.cpp
- *
- *  Created on: 10 jun. 2025
- *      Author: gusta
- */
-
 #include "SYSTICK.h"
 
 SYSTICK::SYSTICK(uint32_t frec){

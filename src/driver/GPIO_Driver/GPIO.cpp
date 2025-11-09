@@ -39,6 +39,5 @@ uint32_t Gpio::Get(){ //Devuelvo uint32_T porque es mas rapido
 		return 1;
 	else
 		return 0;
-	//return GPIO->PIN[port]&(1<<pin)? 1:0 ;
-	//LOS REGISTROS NO SE DESPLAZAN GPIO->PIN[port]>>pin!!!!! esto no
 }
+//OPTIZMIZAR

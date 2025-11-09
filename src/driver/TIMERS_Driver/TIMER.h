@@ -1,10 +1,3 @@
-/*
- * TIMER.h
- *
- *  Created on: 10 jun. 2025
- *      Author: gusta
- */
-
 #ifndef TIMERS_DRIVER_TIMER_H_
 #define TIMERS_DRIVER_TIMER_H_
 

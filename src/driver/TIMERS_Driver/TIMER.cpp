@@ -1,10 +1,3 @@
-/*
- * TIMER.cpp
- *
- *  Created on: 10 jun. 2025
- *      Author: gusta
- */
-
 #include "TIMER.h"
 
 TIMER::TIMER(uint32_t timeStart, uint32_t timeReload, void (*func)(void)){

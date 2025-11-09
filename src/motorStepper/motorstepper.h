@@ -5,8 +5,8 @@
  *      Author: Eze
  */
 
-#ifndef MOTORSTEPPER_MOTORSTEPPER_H_
-#define MOTORSTEPPER_MOTORSTEPPER_H_
+#pragma once
+
 #include "Gpio.h"
 
 #define CANTPASOS180 100
@@ -14,9 +14,12 @@
 
 class motorstepper {
 private:
+
 Gpio direccion;
 Gpio paso;
 Gpio enable;
+
+uint32_t cantidadPasos;
 
 public:
 	motorstepper(uint32_t portDir,uint32_t pinDir,
@@ -24,8 +27,8 @@ public:
 			uint32_t portEnable, uint32_t pinEnable);
 	void setDireccion(bool _direccion);
 	void setEnable(bool _enable);
-	void moverPaso();
-
+	void pulso();
+	void moverPaso(bool sentido);
+	uint32_t getCantidadPasos() const;
+	void setCantidadPasos(uint32_t cantidadPasos);
 };
-
-#endif /* MOTORSTEPPER_MOTORSTEPPER_H_ */

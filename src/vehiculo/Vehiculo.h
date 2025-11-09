@@ -9,7 +9,8 @@
 #define VEHICULO_VEHICULO_H_
 
 #include "tipos.h"
-#include "ControlVehiculo.h"
+#include "control_vehiculo/ControlVehiculo.h"
+
 class Vehiculo {
 private:
        uint32_t diametroRuedaCm;
