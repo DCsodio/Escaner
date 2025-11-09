@@ -10,6 +10,7 @@
 protocoloComu::protocoloComu(uint8_t _caracterInicial, uint8_t _caracterFinal){
 	caracterFinal=_caracterFinal;
 	caracterInicial=_caracterInicial;
+	largoCadena=0;
 	deteccionDatos=false;
 	nuevosDatos=false;
 }
@@ -33,6 +34,7 @@ bool protocoloComu::leerDatos(void){
 		}else if(deteccionDatos==true){
 			if(dato==caracterFinal){
 				datos[indice]='\0';
+				largoCadena=indice;
 				indice=0;
 				deteccionDatos=false;
 				nuevosDatos=true;
@@ -55,4 +57,8 @@ uint8_t* protocoloComu::getDatos(void){
 }
 bool protocoloComu::nuevoMensaje(void){
 	return nuevosDatos;
+}
+
+uint32_t protocoloComu::getLargoCadena() const {
+	return largoCadena;
 }

@@ -44,7 +44,6 @@ volatile bool anguloInicial=false;
 
 //FUNCION POSICION INICIAL
 void posicionInicial(void);
-volatile uint32_t cantidadPasos=0;
 
 //FUNCION ANALISIS SECTORIAL
 volatile bool analisisTerminado=true;
@@ -61,8 +60,8 @@ volatile uint16_t velocidadAnalisis=210;
 //CREACION PROTOCOLO DE COMUNICACION
 protocoloComu proto('>','<');
 
-bool estado_actual=false;
-bool estado_anterior=false;
+bool estado_actual=true;
+bool estado_anterior=true;
 
 uint32_t cantPulsos=0;
 
@@ -71,6 +70,7 @@ int main(void)
 
 	Inicializar_PLL();
 	vehiculo.detener();
+	motor.setEnable(false);
 	SYSTICK systick(1000);
 	UART0_Init(115200);
 	i2c_init();
@@ -127,48 +127,54 @@ int main(void)
 			const char* datos = (const char*)proto.getDatos();
 
 			if(analisisTerminado){
+				if(proto.getLargoCadena()==1){
+					if(datos[0]=='p'){
+						vehiculo.detener();
+						for(int i=0; i<10000; i++){
+						}
+						ADC_Stop();
+						uint32_t _valorPromedio=0;
+						for(uint8_t veces=0;veces<MAX_MUESTRAS; veces++){
+							_valorPromedio=_valorPromedio+brujula.getGrados();
+						}
+						_valorPromedio=_valorPromedio/MAX_MUESTRAS;
+						pkt.grados=_valorPromedio;
+						pkt.pulsos=cantPulsos;
+						pkt.checksum=calcularChecksum(&pkt);
+						UART0_Send((uint8_t*)&pkt,  sizeof(Paquete));
+						cantPulsos=0;
 
-				if(datos[0]=='p'){
-					vehiculo.detener();
-					for(int i=0; i<10000; i++){
+					}else if(datos[0]=='w'){
+						ADC_Reset();
+						pkt.direccionAdelante=true;
+						vehiculo.adelante();
+
+					}else if(datos[0]=='s'){
+						ADC_Reset();
+						pkt.direccionAdelante=false;
+						vehiculo.atras();
+
+					}else if(datos[0]=='a'){
+						vehiculo.izquierda();
+
+					}else if(datos[0]=='d'){
+						vehiculo.derecha();
+
 					}
-					ADC_Stop();
-
-					uint32_t _valorPromedio=0;
-					for(uint8_t veces=0;veces<MAX_MUESTRAS; veces++){
-						_valorPromedio=_valorPromedio+brujula.getGrados();
-					}
-					_valorPromedio=_valorPromedio/MAX_MUESTRAS;
-					pkt.grados=_valorPromedio;
-					pkt.pulsos=cantPulsos;
-					pkt.checksum=calcularChecksum(&pkt);
-					UART0_Send((uint8_t*)&pkt,  sizeof(Paquete));
-					cantPulsos=0;
-
-				}else if(datos[0]=='w'){
-					ADC_Reset();
-					pkt.direccionAdelante=true;
-					vehiculo.adelante();
-				}else if(datos[0]=='s'){
-					ADC_Reset();
-					pkt.direccionAdelante=false;
-					vehiculo.atras();
-				}else if(datos[0]=='a'){
-					vehiculo.izquierda();
-				}else if(datos[0]=='d'){
-					vehiculo.derecha();
-				}else if(strcmp(datos,"mD")==0){
-					motor.moverPaso(true);
-					motor.setCantidadPasos(0);
-				}else if(strcmp(datos,"mI")==0){
-					motor.moverPaso(false);
-					motor.setCantidadPasos(0);
-				}else if(strcmp(datos,"analizar")==0){
-					if(flagAnalizar==false){
-						ctrlVelAnalizar.Start(velocidadAnalisis, velocidadAnalisis, enAnalizar);
+				}else{
+					if(strcmp(datos,"mD")==0){
+						motor.moverPaso(true);
+						motor.setCantidadPasos(0);
+					}else if(strcmp(datos,"mI")==0){
+						motor.moverPaso(false);
+						motor.setCantidadPasos(0);
+					}else if(strcmp(datos,"analizar")==0){
+						analisisTerminado=false;
+						if(flagAnalizar==false){
+							ctrlVelAnalizar.Start(velocidadAnalisis, velocidadAnalisis, enAnalizar);
+						}
 					}
 				}
-
 			}else{
 				if(strcmp(datos,"enMov")==0){
 					ctrlVelAnalizar.Stop();
@@ -187,9 +193,11 @@ int main(void)
 			if(strncmp(datos,"motor:",6)==0){
 				uint8_t valor=atoi((const char*)(&datos[6]));
 				vehiculo.cambiarVelocidad(valor);
-			}else if(strncmp(datos,"T:",8)==0){
-				uint16_t valor=atoi((const char*)(&datos[8]));
+			}else if(strncmp(datos,"T:",2)==0){
+				uint16_t valor=atoi((const char*)(&datos[2]));
 				velocidadAnalisis=valor;
+				ctrlVelAnalizar.setTimeReload(velocidadAnalisis);
+
 			}/*else if(strcmp((char*)proto.getDatos(),"reset")==0){
 				//reset
 			}*/
@@ -222,7 +230,7 @@ int main(void)
 
 void analizar(void){
 	uint32_t promedio=0;
-	if(cantidadPasos<CANTPASOS180 && analisisTerminado==false){
+	if(motor.getCantidadPasos()<CANTPASOS180 && analisisTerminado==false){
 		//ETAPA TOMA DE DATOS
 		pkt.analizando=true;
 
@@ -250,7 +258,7 @@ void analizar(void){
 		state=!state;
 		motor.moverPaso(sentidoHorario);
 
-	}else if (cantidadPasos>=CANTPASOS180){
+	}else if (motor.getCantidadPasos()>=CANTPASOS180){
 		if(maquinaEstado==0 || maquinaEstado==2 ){
 			sentidoHorario=!sentidoHorario;
 		}
@@ -258,12 +266,13 @@ void analizar(void){
 		motor.setCantidadPasos(0);
 		if(maquinaEstado==4){
 			//enviamos que termino el analisis
+
 			ctrlVelAnalizar.Stop();
 			pkt.analizando=false;
 			pkt.checksum=calcularChecksum(&pkt);
 			UART0_Send((uint8_t*)&pkt,  sizeof(Paquete));
 			LED_TX.Set(false);
-
+			sentidoHorario=true;
 			analisisTerminado=true;
 			anguloInicial=false;
 			maquinaEstado=0;

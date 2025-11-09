@@ -17,6 +17,7 @@ public:
 	void Discount(void);
 	void Stop(void);
 	void Callback( void );
+	void setTimeReload(uint32_t timeReload);
 };
 
 #endif /* TIMERS_DRIVER_TIMER_H_ */

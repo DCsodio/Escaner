@@ -19,6 +19,7 @@
 class protocoloComu{
 private:
 uint8_t datos[MAX_DATOS];
+uint32_t largoCadena;
 uint32_t indice=0;
 uint8_t caracterFinal;
 uint8_t caracterInicial;
@@ -34,6 +35,7 @@ public:
 	bool leerDatos(void);
 	uint8_t* getDatos(void);
 	bool nuevoMensaje(void);
+	uint32_t getLargoCadena() const;
 };
 
 #endif /* DRIVER_PROTOCOLOCOMU_PROTOCOLOCOMU_H_ */

@@ -24,6 +24,11 @@ void TIMER::Discount(void){
 		}
 	}
 }
+
+void TIMER::setTimeReload(uint32_t timeReload) {
+	this->timeReload = timeReload;
+}
+
 void TIMER::Callback(void){
 	Discount();
 }
