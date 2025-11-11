@@ -34,6 +34,7 @@ Vehiculo vehiculo(10,0,0,10,10,5,
 motorstepper motor(PINSTPRDIR,
 				PINSTPRPASO,
 				PINSTPREN);
+bool enStepper=false;
 
 //Creacion del laser
 laserHl laser;
@@ -162,30 +163,43 @@ int main(void)
 
 					}
 				}else{
-					if(strcmp(datos,"mD")==0){
-						motor.moverPaso(true);
-						motor.setCantidadPasos(0);
-					}else if(strcmp(datos,"mI")==0){
-						motor.moverPaso(false);
-						motor.setCantidadPasos(0);
-					}else if(strcmp(datos,"analizar")==0){
+					if(enStepper){
+						if(strcmp(datos,"mD")==0){
+							motor.moverPaso(true);
+							motor.setCantidadPasos(0);
+						}else if(strcmp(datos,"mI")==0){
+							motor.moverPaso(false);
+							motor.setCantidadPasos(0);
+						}
+					}
+					if(strcmp(datos,"analizar")==0){
 						analisisTerminado=false;
 						if(flagAnalizar==false){
 							ctrlVelAnalizar.Start(velocidadAnalisis, velocidadAnalisis, enAnalizar);
 						}
+					}else if(strcmp(datos,"enStepper")==0){
+						ctrlVelAnalizar.Stop();
+						motor.setCantidadPasos(0);
+						motor.setEnable(true);
+						LED_TX.Set(false);
+						maquinaEstado=0;
+
+						sentidoHorario=true;
+
+						enStepper=true;
+					}else if(strcmp(datos,"disStepper")==0){
+						analisisTerminado=true;
+						motor.setEnable(false);
+						enStepper=false;
 					}
 				}
 			}else{
-				if(strcmp(datos,"enMov")==0){
+				if(strcmp(datos,"stop")==0){
 					ctrlVelAnalizar.Stop();
-					/*timerEjecutado=false;
-					if(timerEjecutado==false){
-						ctrlVelPosInit.Start(100,100, posicionInicial);
-						timerEjecutado=true;
-					}*/
-					//enmov
-				}else if(strcmp(datos,"disMov")==0){
+					motor.setCantidadPasos(0);
 					analisisTerminado=true;
+					maquinaEstado=0;
+					sentidoHorario=true;
 				}
 			}
 
@@ -198,9 +212,7 @@ int main(void)
 				velocidadAnalisis=valor;
 				ctrlVelAnalizar.setTimeReload(velocidadAnalisis);
 
-			}/*else if(strcmp((char*)proto.getDatos(),"reset")==0){
-				//reset
-			}*/
+			}
 		}
 
 		if(flagAnalizar){
@@ -230,7 +242,7 @@ int main(void)
 
 void analizar(void){
 	uint32_t promedio=0;
-	if(motor.getCantidadPasos()<CANTPASOS180 && analisisTerminado==false){
+	if(motor.getCantidadPasos()<=CANTPASOS180 && analisisTerminado==false){
 		//ETAPA TOMA DE DATOS
 		pkt.analizando=true;
 
@@ -258,17 +270,19 @@ void analizar(void){
 		state=!state;
 		motor.moverPaso(sentidoHorario);
 
-	}else if (motor.getCantidadPasos()>=CANTPASOS180){
-		if(maquinaEstado==0 || maquinaEstado==2 ){
+	}else if (motor.getCantidadPasos()>CANTPASOS180){
+		maquinaEstado++;
+		if(maquinaEstado==1 || maquinaEstado==3 ){
 			sentidoHorario=!sentidoHorario;
 		}
-		maquinaEstado++;
+
 		motor.setCantidadPasos(0);
 		if(maquinaEstado==4){
 			//enviamos que termino el analisis
 
 			ctrlVelAnalizar.Stop();
 			pkt.analizando=false;
+			pkt.cantidadPasos=0;
 			pkt.checksum=calcularChecksum(&pkt);
 			UART0_Send((uint8_t*)&pkt,  sizeof(Paquete));
 			LED_TX.Set(false);
