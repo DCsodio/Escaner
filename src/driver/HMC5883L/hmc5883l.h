@@ -116,7 +116,7 @@ public:
    * @param y_offset Offset en eje Y
    * @param z_offset Offset en eje Z
    */
-  void setCalibrationOffsets(float x_offset, float y_offset, float z_offset);
+  void setCalibrationOffsets(float x_offset, float y_offset, float z_offset, float sx, float sy);
 
 private:
   hmc5883MagGain _magGain;

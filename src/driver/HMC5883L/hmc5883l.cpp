@@ -228,8 +228,11 @@ void HMC5883L_LPC845::calibrate(void) {
   _scale_z = 1.0f; // No escalamos Z para calibración 2D
 }
 
-void HMC5883L_LPC845::setCalibrationOffsets(float x_offset, float y_offset, float z_offset) {
+void HMC5883L_LPC845::setCalibrationOffsets(float x_offset, float y_offset, float z_offset, float sx, float sy) {
   _offset_x = x_offset;
   _offset_y = y_offset;
   _offset_z = z_offset;
+
+  _scale_x=sx;
+  _scale_y=sy;
 }

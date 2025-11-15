@@ -22,3 +22,7 @@ void brujulaHl::inicializar(hmc5883MagGain ganancia){
 float brujulaHl::getGrados(void){
 	return mag.getHeading();
 }
+
+void brujulaHl::Calibrar(float xOf, float yOf, float sx, float sy){
+	mag.setCalibrationOffsets(xOf, yOf, 0, sx, sy);
+}

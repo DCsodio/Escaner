@@ -16,6 +16,7 @@ private:
 public:
 	brujulaHl();
 	void inicializar(hmc5883MagGain ganancia);
+	void Calibrar(float xOf, float yOf, float sx, float sy);
 	float getGrados(void);
 };
 

@@ -83,6 +83,8 @@ int main(void)
 	//Brujuila
 	brujula.inicializar(HMC5883_MAGGAIN_4_0);
 
+//	brujula.Calibrar(-17.5, -62.5, 1.0066, 0.9934);
+
 	//detecta que el esp32 se haya conectado
 	bool init=false;
 	while(!init){
