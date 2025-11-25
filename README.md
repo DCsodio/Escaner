@@ -35,13 +35,15 @@ LPC845 → UART → ESP32 → WiFi → Aplicación Qt
 **Estructura del Paquete UART:**
 ```c
 typedef struct {
-    uint8_t header[2];      // Identificación "{{"
-    uint16_t distancia_mm;  // Datos del láser en mm
-    float heading_grados;   // Orientación en grados
-    int32_t pos_x;          // Posición X del vehículo
-    int32_t pos_y;          // Posición Y del vehículo
-    uint8_t checksum;       // Verificación de integridad
-} PaqueteSensor;
+	uint8_t header[2];
+	uint8_t analizando;
+	uint16_t distanciaMm;
+	float grados;
+	uint16_t cantidadPasos;
+	uint32_t pulsos;
+	bool direccionAdelante;
+	uint32_t checksum;
+} Paquete;
 ```
 
 ---
