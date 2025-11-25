@@ -109,8 +109,8 @@ typedef struct {
 - HMC5883L: Dirección 0x1E
 
 **WiFi (ESP32):**
-- Protocolo: TCP
-- Puerto configurable (ej: 8080)
+- Protocolo: WebSocket
+- Puerto configurable (ej: 12345)
 
 ---
 
