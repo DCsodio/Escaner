@@ -99,3 +99,5 @@ void ADC_Reset(void){
 	ADC_on=true;
 	TimerADC.Start(1, 1, ADC_Start);
 }
+
+

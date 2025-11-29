@@ -145,6 +145,7 @@ int main(void)
 						pkt.pulsos=cantPulsos;
 						pkt.checksum=calcularChecksum(&pkt);
 						UART0_Send((uint8_t*)&pkt,  sizeof(Paquete));
+						pkt.pulsos=0;
 						cantPulsos=0;
 
 					}else if(datos[0]=='w'){
